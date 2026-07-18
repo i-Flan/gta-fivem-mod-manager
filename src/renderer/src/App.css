@@ -1,4 +1,7 @@
-.app { height: 100vh; display: flex; flex-direction: column; background: radial-gradient(circle at 100% 0, rgba(224, 30, 43, 0.12) 0, transparent 34%), radial-gradient(circle at 0 100%, rgba(60, 63, 72, 0.18) 0, transparent 40%), var(--bg-primary); }
+.app { position: relative; height: 100vh; display: flex; flex-direction: column; background: radial-gradient(circle at 100% 0, rgba(224, 30, 43, 0.14) 0, transparent 36%), radial-gradient(circle at 0 100%, rgba(60, 63, 72, 0.2) 0, transparent 42%), var(--bg-primary); }
+/* علامة Fivey خفيفة في الخلفية */
+.app::before { content: ''; position: fixed; bottom: -70px; inset-inline-end: -50px; width: 400px; height: 400px; background: url('./assets/logo-mark.png') no-repeat center / contain; opacity: 0.04; filter: grayscale(0.2); pointer-events: none; z-index: 0; }
+.app > * { position: relative; z-index: 1; }
 .main-content { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .category-switcher { display: flex; gap: 8px; padding: 16px 32px 0; justify-content: space-between; align-items: center; }
 .categories-left { display: flex; gap: 8px; }
@@ -17,6 +20,15 @@
 .content-heading p:not(.eyebrow) { color: var(--text-secondary); font-size: 13px; }
 .mods-count { padding: 8px 14px; border-radius: 30px; background: rgba(224, 30, 43, 0.10); color: var(--accent-red); border: 1px solid rgba(224, 30, 43, 0.35); font-size: 12px; font-weight: 700; white-space: nowrap; }
 .mods-grid { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); gap: 18px; padding: 24px 32px 36px; }
+.mods-grid > *:nth-child(1) { animation-delay: .02s; }
+.mods-grid > *:nth-child(2) { animation-delay: .06s; }
+.mods-grid > *:nth-child(3) { animation-delay: .10s; }
+.mods-grid > *:nth-child(4) { animation-delay: .14s; }
+.mods-grid > *:nth-child(5) { animation-delay: .18s; }
+.mods-grid > *:nth-child(6) { animation-delay: .22s; }
+.mods-grid > *:nth-child(7) { animation-delay: .26s; }
+.mods-grid > *:nth-child(8) { animation-delay: .30s; }
+.mods-grid > *:nth-child(n+9) { animation-delay: .34s; }
 .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--text-secondary); }
 .empty-state .icon { font-size: 52px; opacity: .85; filter: drop-shadow(0 6px 14px #0008); }
 .empty-state .hint { text-align: center; color: var(--text-muted); font-size: 13px; line-height: 2; }

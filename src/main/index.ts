@@ -31,6 +31,40 @@ function setupAutoUpdate(): void {
   )
 }
 
+// شاشة بداية أنيقة تظهر أثناء تحميل البرنامج
+const SPLASH_HTML = `<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
+.card{position:absolute;inset:10px;border-radius:24px;background:linear-gradient(160deg,#161619,#0b0b0d);border:1px solid #2a2a31;
+display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-shadow:0 24px 70px #000b;animation:pop .45s cubic-bezier(.22,1,.36,1)}
+.card::after{content:'';position:absolute;inset:0;border-radius:24px;background:radial-gradient(circle at 50% 30%,rgba(224,30,43,.18),transparent 60%);pointer-events:none}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.wm{font-size:56px;font-weight:800;font-style:italic;letter-spacing:1px;filter:drop-shadow(0 3px 6px #000a);position:relative;z-index:1}
+.five{background:linear-gradient(100deg,#9a9a9a,#ffffff 18%,#8f8f8f 38%,#ffffff 52%,#7d7d7d 72%,#e8e8e8);background-size:250% 100%;
+-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:shine 2.2s linear infinite}
+@keyframes shine{0%{background-position:0}100%{background-position:250%}}
+.y{color:#e01e2b;text-shadow:0 0 20px rgba(224,30,43,.6)}
+.sub{color:#8a8f98;font-size:11px;letter-spacing:4px;text-transform:uppercase;position:relative;z-index:1}
+.bar{width:160px;height:4px;border-radius:4px;background:#26262e;overflow:hidden;position:relative;z-index:1}
+.bar>i{position:absolute;top:0;left:0;height:100%;width:40%;border-radius:4px;background:linear-gradient(90deg,#e01e2b,#f5313f);animation:load 1.3s ease-in-out infinite}
+@keyframes load{0%{left:-40%}100%{left:160%}}
+</style></head><body><div class="card"><div class="wm"><span class="five">Five</span><span class="y">y</span></div><div class="sub">Mod Manager</div><div class="bar"><i></i></div></div></body></html>`
+
+let splashWindow: BrowserWindow | null = null
+function createSplash(): void {
+  splashWindow = new BrowserWindow({
+    width: 460,
+    height: 300,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    center: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    show: true
+  })
+  splashWindow.loadURL('data:text/html;charset=UTF-8,' + encodeURIComponent(SPLASH_HTML))
+}
+
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 1100,
@@ -48,7 +82,12 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    // نبقي شاشة البداية ظاهرة مدة قصيرة ثم نفتح البرنامج
+    setTimeout(() => {
+      if (splashWindow && !splashWindow.isDestroyed()) splashWindow.close()
+      splashWindow = null
+      mainWindow.show()
+    }, 1600)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -226,6 +265,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  createSplash()
   createWindow()
 
   app.on('activate', () => {
