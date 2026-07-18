@@ -40,6 +40,7 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     title: 'Dev by Tik @le_o',
+    icon: join(app.getAppPath(), 'build', 'icon.png'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false

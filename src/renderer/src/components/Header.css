@@ -18,46 +18,53 @@
 
 .logo {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-direction: row-reverse;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.logo-icon {
-  width: 42px;
-  height: 42px;
-  background: linear-gradient(135deg, #e01e2b, #8f0f18);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 900;
+.wordmark {
+  direction: ltr;
+  font-family: var(--font-en);
   font-style: italic;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  box-shadow: 0 6px 18px rgba(224, 30, 43, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.logo > div:last-child {
-  text-align: right;
-}
-
-.logo h1 {
-  font-size: 19px;
   font-weight: 800;
-  font-style: italic;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  direction: ltr;
+  font-size: 27px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
+  animation: wmFloat 3.2s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes wmFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(-0.4deg); }
 }
 
-.logo span {
-  font-size: 11px;
+/* حرف Five بتأثير كروم فضّي متحرّك (لمعة تمرّ) */
+.wm-five {
+  background: linear-gradient(100deg, #9a9a9a 0%, #ffffff 18%, #8f8f8f 38%, #ffffff 52%, #7d7d7d 72%, #e8e8e8 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: chromeShine 4.5s linear infinite;
+}
+@keyframes chromeShine {
+  0% { background-position: 0% 0; }
+  100% { background-position: 250% 0; }
+}
+
+.wm-y {
+  color: #e01e2b;
+  text-shadow: 0 0 14px rgba(224, 30, 43, 0.55);
+}
+
+.wm-sub {
+  font-size: 10px;
   color: var(--text-muted);
-  display: block;
-  direction: ltr;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  padding-inline-start: 2px;
 }
 
 .path-badge {

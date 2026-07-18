@@ -63,6 +63,9 @@
   border-radius: 12px;
   background: radial-gradient(circle at 50% 0, rgba(224, 30, 43, 0.14), transparent 70%), var(--bg-card);
   border: 1px solid rgba(224, 30, 43, 0.28);
+  /* خط لاتيني ثابت حتى لا يتغيّر حجم الاسم عند تبديل اللغة */
+  font-family: var(--font-en);
+  direction: ltr;
 }
 .dev-label {
   font-size: 10px;
@@ -73,6 +76,8 @@
   animation: revealUp 0.5s ease forwards 0.15s;
 }
 .dev-link {
+  position: relative;
+  overflow: hidden;
   direction: ltr;
   display: inline-flex;
   align-items: center;
@@ -82,7 +87,7 @@
   font-style: italic;
   text-decoration: none;
   color: #fff;
-  padding: 7px 20px;
+  padding: 7px 22px;
   border-radius: 24px;
   background: linear-gradient(135deg, #e01e2b, #8f0f18);
   box-shadow: 0 6px 18px var(--accent-glow);
@@ -90,6 +95,22 @@
   transform: translateY(10px);
   animation: revealUp 0.55s cubic-bezier(.22, 1, .36, 1) forwards 0.3s;
   transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+}
+/* لمعة تمرّ فوق الاسم باستمرار */
+.dev-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -70%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-20deg);
+  animation: devShine 3.4s ease-in-out infinite 1.2s;
+}
+@keyframes devShine {
+  0% { left: -70%; }
+  55%, 100% { left: 130%; }
 }
 .dev-link:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 26px var(--accent-glow); filter: brightness(1.08); }
 .dev-arrow { font-size: 13px; opacity: 0.85; }
@@ -106,6 +127,33 @@
   margin-bottom: 8px;
   color: var(--text-secondary);
 }
+
+.lang-switch { position: relative; display: flex; direction: ltr; padding: 4px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); }
+.lang-thumb {
+  position: absolute;
+  top: 4px; bottom: 4px; left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--accent), #a8121c);
+  box-shadow: 0 4px 14px var(--accent-glow);
+  transition: transform 0.32s cubic-bezier(.22, 1, .36, 1);
+}
+.lang-switch[data-active="en"] .lang-thumb { transform: translateX(100%); }
+.lang-switch button {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 11px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.25s;
+}
+.lang-switch button.active { color: #fff; }
 
 .path-input-row { display: flex; gap: 8px; }
 

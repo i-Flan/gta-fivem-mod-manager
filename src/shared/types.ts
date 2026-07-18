@@ -51,6 +51,7 @@ export interface AppSettings {
   gtaPath: string
   fivemPath: string
   backupEnabled: boolean
+  language?: 'ar' | 'en'
 }
 
 export interface ActiveMods {

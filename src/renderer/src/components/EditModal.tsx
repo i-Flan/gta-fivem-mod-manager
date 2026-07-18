@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ModManifest } from '../../../../shared/types'
+import { useI18n } from '../i18n'
 import './EditModal.css'
 
 interface EditModalProps {
@@ -8,7 +9,8 @@ interface EditModalProps {
   onSave: (updatedMod: ModManifest) => void
 }
 
-export default function EditModal({ mod, onClose, onSave }: EditModalProps) {
+export default function EditModal({ mod, onClose, onSave }: EditModalProps): React.JSX.Element {
+  const { t, dir } = useI18n()
   const [nameAr, setNameAr] = useState(mod.nameAr)
   const [descriptionAr, setDescriptionAr] = useState(mod.descriptionAr)
 
@@ -22,15 +24,15 @@ export default function EditModal({ mod, onClose, onSave }: EditModalProps) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} dir={dir}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>تعديل المود</h2>
+          <h2>{t('editModTitle')}</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
         <form onSubmit={handleSubmit} className="modal-body">
           <div className="form-group">
-            <label>الاسم (عربي)</label>
+            <label>{t('nameLabel')}</label>
             <input
               type="text"
               value={nameAr}
@@ -39,7 +41,7 @@ export default function EditModal({ mod, onClose, onSave }: EditModalProps) {
             />
           </div>
           <div className="form-group">
-            <label>الوصف (عربي)</label>
+            <label>{t('descLabel')}</label>
             <textarea
               value={descriptionAr}
               onChange={(e) => setDescriptionAr(e.target.value)}
@@ -48,8 +50,8 @@ export default function EditModal({ mod, onClose, onSave }: EditModalProps) {
             />
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn-cancel" onClick={onClose}>إلغاء</button>
-            <button type="submit" className="btn-save">حفظ</button>
+            <button type="button" className="btn-cancel" onClick={onClose}>{t('cancel')}</button>
+            <button type="submit" className="btn-save">{t('save')}</button>
           </div>
         </form>
       </div>

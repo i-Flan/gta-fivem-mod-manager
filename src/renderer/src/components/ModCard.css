@@ -34,7 +34,8 @@
 .btn-download:disabled { opacity: .7; cursor: wait; }
 .btn-menu { flex: 0 0 auto; width: 40px; background: #202127; color: var(--text-secondary); border-color: var(--steel); }
 .btn-menu:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--steel-light); }
-.menu-dropdown { position: absolute; bottom: 100%; left: 0; background: #1c1c22; border: 1px solid var(--steel); border-radius: 9px; padding: 4px; z-index: 10; min-width: 150px; box-shadow: 0 8px 22px #0007; }
-.menu-dropdown button { width: 100%; text-align: right; padding: 8px 12px; background: transparent; border: none; color: var(--text-primary); cursor: pointer; border-radius: 6px; font-size: 12px; }
-.menu-dropdown button:hover { background: var(--steel); }
+.menu-dropdown { position: absolute; bottom: calc(100% + 6px); left: 0; background: rgba(24, 24, 29, 0.72); backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 12px; padding: 6px; z-index: 10; min-width: 172px; box-shadow: 0 14px 34px #000b; animation: menuIn .18s cubic-bezier(.22, 1, .36, 1); }
+@keyframes menuIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+.menu-dropdown button { width: 100%; text-align: start; padding: 10px 13px; margin: 2px 0; background: transparent; border: none; color: var(--text-primary); cursor: pointer; border-radius: 9px; font-size: 12.5px; font-weight: 600; transition: background .15s; }
+.menu-dropdown button:hover { background: rgba(255, 255, 255, 0.09); }
 .menu-dropdown button.active { color: #ffcf33; }

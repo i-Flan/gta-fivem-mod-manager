@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 import type { ModManifest } from '../../../../shared/types'
+import { useI18n } from '../i18n'
 import './ModCard.css'
 
 interface ModCardProps { mod: ModManifest; isActive: boolean; loading: boolean; downloading: boolean; progress: number; onActivate: (id: string) => void; onDeactivate: (id: string) => void; onDownload: (id: string) => void; onToggleFavorite: (id: string) => void; onEdit: (mod: ModManifest) => void }
 
 function formatSize(bytes?: number): string {
-  if (!bytes || bytes <= 0) return 'جاهز للتحميل'
+  if (!bytes || bytes <= 0) return ''
   const mb = bytes / (1024 * 1024)
   return mb >= 1024 ? `${(mb / 1024).toFixed(1)} GB` : `${Math.round(mb)} MB`
 }
 
-export default function ModCard({ mod, isActive, loading, downloading, progress, onActivate, onDeactivate, onDownload, onToggleFavorite, onEdit }: ModCardProps) {
+export default function ModCard({ mod, isActive, loading, downloading, progress, onActivate, onDeactivate, onDownload, onToggleFavorite, onEdit }: ModCardProps): React.JSX.Element {
+  const { t } = useI18n()
   const bgColor = mod.color || '#1a2235'
   const [showMenu, setShowMenu] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -59,16 +61,16 @@ export default function ModCard({ mod, isActive, loading, downloading, progress,
 
   return <article className={`mod-card ${isActive ? 'active' : ''}`}>
     <div className="mod-preview" style={{ background: `linear-gradient(135deg, ${bgColor}, var(--bg-card))` }}>
-      {isActive && <span className="active-badge">مفعّل الآن</span>}
+      {isActive && <span className="active-badge">{t('activeBadge')}</span>}
       <span className="target-badge">{mod.category === 'audio' ? 'GTA V' : 'FiveM'}</span>
       {mod.videoPreview
         ? <video src={mod.videoPreview} className="mod-preview-video" autoPlay muted loop playsInline />
         : mod.category === 'audio' && mod.soundPreview
-        ? <button type="button" className={`test-sound-btn ${playing ? 'playing' : ''} ${loadingSound ? 'loading' : ''}`} onClick={testSound}>{loadingSound ? 'جارٍ التحميل...' : playing ? '■ إيقاف' : '▶ Test Sound'}</button>
+        ? <button type="button" className={`test-sound-btn ${playing ? 'playing' : ''} ${loadingSound ? 'loading' : ''}`} onClick={testSound}>{loadingSound ? t('soundLoading') : playing ? t('soundStop') : t('testSound')}</button>
         : mod.preview ? <img src={mod.preview} alt={mod.nameAr} className="mod-preview-image" /> : <span className="emoji">{mod.category === 'audio' ? '🔊' : mod.category === 'bloodfx' ? '🩸' : mod.category === 'killfx' ? '💥' : '🎨'}</span>}
     </div>
-    <div className="mod-info"><h3>{mod.nameAr}</h3><p className="file-count">{mod.downloaded === false ? formatSize(mod.size) : `${mod.files.length} ملف`}</p><p className="description">{mod.descriptionAr}</p>
-      <div className="mod-actions" ref={menuRef}>{mod.downloaded === false ? <button className="btn btn-download" onClick={() => onDownload(mod.id)} disabled={downloading}>{downloading ? `جارٍ التحميل ${Math.round(progress * 100)}%` : '⬇ تحميل'}</button> : isActive ? <><button className="btn btn-active-label">✓ مفعّل حالياً</button><button className="btn btn-deactivate" onClick={() => onDeactivate(mod.id)} disabled={loading}>إلغاء التفعيل</button></> : <button className="btn btn-activate" onClick={() => onActivate(mod.id)} disabled={loading}>{loading ? 'جارٍ التفعيل...' : 'تفعيل'}</button>}<button className="btn btn-menu" onClick={() => setShowMenu(!showMenu)}>...</button>{showMenu && <div className="menu-dropdown"><button className={mod.favorite ? 'active' : ''} onClick={() => { onToggleFavorite(mod.id); setShowMenu(false) }}>{mod.favorite ? '★ إزالة من المفضلة' : '☆ إضافة للمفضلة'}</button><button onClick={() => { onEdit(mod); setShowMenu(false) }}>✏️ تعديل</button></div>}</div>
+    <div className="mod-info"><h3>{mod.nameAr}</h3><p className="file-count">{mod.downloaded === false ? (mod.size ? formatSize(mod.size) : t('readyToDownload')) : `${mod.files.length} ${t('files')}`}</p><p className="description">{mod.descriptionAr}</p>
+      <div className="mod-actions" ref={menuRef}>{mod.downloaded === false ? <button className="btn btn-download" onClick={() => onDownload(mod.id)} disabled={downloading}>{downloading ? `${t('downloading')} ${Math.round(progress * 100)}%` : t('download')}</button> : isActive ? <><button className="btn btn-active-label">{t('activeNow')}</button><button className="btn btn-deactivate" onClick={() => onDeactivate(mod.id)} disabled={loading}>{t('deactivate')}</button></> : <button className="btn btn-activate" onClick={() => onActivate(mod.id)} disabled={loading}>{loading ? t('activating') : t('activate')}</button>}<button className="btn btn-menu" onClick={() => setShowMenu(!showMenu)}>...</button>{showMenu && <div className="menu-dropdown"><button className={mod.favorite ? 'active' : ''} onClick={() => { onToggleFavorite(mod.id); setShowMenu(false) }}>{mod.favorite ? t('removeFavorite') : t('addFavorite')}</button><button onClick={() => { onEdit(mod); setShowMenu(false) }}>{t('edit')}</button></div>}</div>
     </div>
   </article>
 }

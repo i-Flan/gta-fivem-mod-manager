@@ -33,7 +33,8 @@ export function getDefaultSettings(): AppSettings {
   return {
     gtaPath: detectGtaPath(),
     fivemPath: detectFivemPath(),
-    backupEnabled: true
+    backupEnabled: true,
+    language: 'ar'
   }
 }
 
