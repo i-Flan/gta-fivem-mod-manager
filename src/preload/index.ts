@@ -11,7 +11,13 @@ const api = {
   getModsDir: () => ipcRenderer.invoke('get-mods-dir'),
   openModsFolder: () => ipcRenderer.invoke('open-mods-folder'),
   refreshMods: () => ipcRenderer.invoke('refresh-mods'),
-  saveCustomMod: (modId: string, customData: { nameAr?: string; descriptionAr?: string }) => ipcRenderer.invoke('save-custom-mod', modId, customData)
+  saveCustomMod: (modId: string, customData: { nameAr?: string; descriptionAr?: string }) => ipcRenderer.invoke('save-custom-mod', modId, customData),
+  downloadMod: (modId: string) => ipcRenderer.invoke('download-mod', modId),
+  onDownloadProgress: (callback: (data: { modId: string; progress: number }) => void) => {
+    const listener = (_event: unknown, data: { modId: string; progress: number }): void => callback(data)
+    ipcRenderer.on('download-progress', listener)
+    return () => ipcRenderer.removeListener('download-progress', listener)
+  }
 }
 
 if (process.contextIsolated) {

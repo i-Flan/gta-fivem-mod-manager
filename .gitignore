@@ -7,7 +7,8 @@ dist/
 # يبقى محلياً على جهازك، ويُوزّع لاحقاً عبر Releases (المرحلة 2).
 mods/
 
-# ملفات الأسرار (توكن Discord) — لا تُرفع أبداً
+# ملفات الأسرار — لا تُرفع أبداً
 .env
 .env.local
 token.txt
+github-token.txt

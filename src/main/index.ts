@@ -1,7 +1,8 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { loadModCatalog, getModsDirectory, initModsDirectory } from './modCatalog'
+import { loadModCatalog, buildModCatalog, getModsDirectory, initModsDirectory } from './modCatalog'
+import { downloadAndInstall } from './modDownloader'
 import {
   loadState,
   saveState,
@@ -70,8 +71,22 @@ function initState(): void {
 }
 
 function setupIpc(): void {
-  ipcMain.handle('get-mods', () => {
-    return loadModCatalog()
+  ipcMain.handle('get-mods', async () => {
+    return buildModCatalog()
+  })
+
+  // تحميل مود من المصدر المركزي (GitHub) وتركيبه محلياً
+  ipcMain.handle('download-mod', async (event, modId: string) => {
+    const catalog = await buildModCatalog()
+    const mod = catalog.find((m) => m.id === modId)
+    if (!mod || !mod.downloadUrl) {
+      return { success: false, error: 'المود غير متوفر للتحميل' }
+    }
+    const sender = event.sender
+    const result = await downloadAndInstall(mod, (progress) => {
+      if (!sender.isDestroyed()) sender.send('download-progress', { modId, progress })
+    })
+    return result
   })
 
   ipcMain.handle('get-state', () => {
@@ -133,16 +148,16 @@ function setupIpc(): void {
     return getModsDirectory()
   })
 
-  ipcMain.handle('refresh-mods', () => {
-    const mods = loadModCatalog()
+  ipcMain.handle('refresh-mods', async () => {
+    const mods = await buildModCatalog()
     // إرسال قائمة المودات للبوت
     ipcMain.emit('mods-updated', null, mods)
     return mods
   })
 
   // Handler لطلب تحديث المودات من البوت
-  ipcMain.on('refresh-mods-request', () => {
-    const mods = loadModCatalog()
+  ipcMain.on('refresh-mods-request', async () => {
+    const mods = await buildModCatalog()
     ipcMain.emit('mods-updated', null, mods)
   })
 

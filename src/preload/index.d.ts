@@ -28,6 +28,14 @@ interface API {
   getModsDir: () => Promise<string>
   openModsFolder: () => Promise<string>
   refreshMods: () => Promise<ModManifest[]>
+  saveCustomMod: (
+    modId: string,
+    customData: { nameAr?: string; descriptionAr?: string }
+  ) => Promise<{ success: boolean }>
+  downloadMod: (modId: string) => Promise<{ success: boolean; error?: string }>
+  onDownloadProgress: (
+    callback: (data: { modId: string; progress: number }) => void
+  ) => () => void
 }
 
 declare global {

@@ -1,24 +1,93 @@
-import { existsSync } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
-import type { ModManifest } from '../shared/types'
-import { scanAllMods, findModFolder, ensureModsStructure } from './modScanner'
+import type { ModCategory, ModManifest } from '../shared/types'
+import { scanAllMods, findModFolder, ensureModsStructure, getModFolderName } from './modScanner'
+import { fetchRemoteCatalog } from './remoteCatalog'
 
+// مجلد المودات = مكان قابل للكتابة لكل مستخدم. المودات تُنزّل هنا من GitHub.
 export function getModsDirectory(): string {
-  if (app.isPackaged) {
-    return join(process.resourcesPath, 'mods')
-  }
-  return join(app.getAppPath(), 'mods')
+  return join(app.getPath('userData'), 'mods')
 }
 
 export function initModsDirectory(): void {
   ensureModsStructure(getModsDirectory())
 }
 
+// المسح المحلي فقط (المودات المحمّلة). يُستخدم عند التفعيل/الإزالة لأنه يحتاج
+// قائمة الملفات الفعلية.
 export function loadModCatalog(): ModManifest[] {
   const modsDir = getModsDirectory()
   initModsDirectory()
   return scanAllMods(modsDir)
+}
+
+const COLORS: Record<ModCategory, string> = {
+  graphics: '#1e3a5f',
+  audio: '#3e245b',
+  bloodfx: '#7c2437',
+  killfx: '#54317b'
+}
+
+function categoryTarget(category: ModCategory): ModManifest['target'] {
+  return category === 'audio' ? 'gta' : category === 'graphics' ? 'fivem' : 'both'
+}
+
+// القائمة المعروضة = دمج القائمة المركزية (المتاح) مع المسح المحلي (المحمّل).
+// المود الموجود محلياً => downloaded: true وجاهز للتفعيل.
+// المود في القائمة فقط => downloaded: false ويظهر له زر تحميل.
+export async function buildModCatalog(): Promise<ModManifest[]> {
+  const modsDir = getModsDirectory()
+  initModsDirectory()
+  const local = scanAllMods(modsDir)
+  const remote = await fetchRemoteCatalog()
+
+  const byId = new Map<string, ModManifest>()
+
+  for (const r of remote) {
+    const localMod = local.find((m) => m.id === r.id)
+    if (localMod) {
+      byId.set(r.id, {
+        ...localMod,
+        nameAr: r.nameAr || localMod.nameAr,
+        descriptionAr: r.descriptionAr || localMod.descriptionAr,
+        preview: r.preview ?? localMod.preview,
+        soundPreview: r.soundPreview ?? localMod.soundPreview,
+        videoPreview: r.videoPreview ?? localMod.videoPreview,
+        folderName: r.folderName,
+        downloadUrl: r.downloadUrl,
+        size: r.size,
+        downloaded: true
+      })
+    } else {
+      byId.set(r.id, {
+        id: r.id,
+        name: r.name || r.nameAr,
+        nameAr: r.nameAr,
+        description: r.descriptionAr || '',
+        descriptionAr: r.descriptionAr || '',
+        category: r.category,
+        target: categoryTarget(r.category),
+        files: [],
+        color: COLORS[r.category],
+        preview: r.preview,
+        soundPreview: r.soundPreview,
+        videoPreview: r.videoPreview,
+        folderName: r.folderName,
+        downloadUrl: r.downloadUrl,
+        size: r.size,
+        downloaded: false
+      })
+    }
+  }
+
+  // مودات محمّلة محلياً غير موجودة في القائمة المركزية (مثلاً عند المدير)
+  for (const m of local) {
+    if (!byId.has(m.id)) {
+      byId.set(m.id, { ...m, folderName: getModFolderName(m), downloaded: true })
+    }
+  }
+
+  return [...byId.values()]
 }
 
 export function getModSourceDir(modId: string, _category: string): string {

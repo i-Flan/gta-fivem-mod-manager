@@ -20,6 +20,31 @@ export interface ModManifest {
   videoPreview?: string
   color?: string
   favorite?: boolean
+  // حقول المصدر المركزي (المرحلة 2)
+  folderName?: string
+  downloadUrl?: string
+  size?: number
+  downloaded?: boolean
+}
+
+// عنصر في ملف القائمة المركزي catalog.json
+export interface RemoteMod {
+  id: string
+  category: ModCategory
+  folderName: string
+  name?: string
+  nameAr: string
+  descriptionAr?: string
+  downloadUrl: string
+  size?: number
+  preview?: string
+  soundPreview?: string
+  videoPreview?: string
+}
+
+export interface DownloadProgress {
+  modId: string
+  progress: number
 }
 
 export interface AppSettings {

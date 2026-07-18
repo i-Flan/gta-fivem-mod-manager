@@ -13,7 +13,7 @@ import {
   type StringSelectMenuInteraction
 } from 'discord.js'
 import { ipcMain } from 'electron'
-import { loadModCatalog } from './modCatalog'
+import { buildModCatalog } from './modCatalog'
 import { findModByQuery, getModFolderName } from './modScanner'
 import type { ModManifest } from '../shared/types'
 
@@ -192,7 +192,7 @@ async function handleModAutocomplete(
 
 client.once(Events.ClientReady, async (readyClient) => {
   botReady = true
-  mods = loadModCatalog()
+  mods = await buildModCatalog()
   console.log(`[Discord Bot] Logged in as ${readyClient.user.tag}`)
   console.log('[Discord Bot] Initial mods loaded:', mods.length)
 
@@ -247,7 +247,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
       case 'refresh':
         ipcMain.emit('refresh-mods-request', null)
-        mods = loadModCatalog()
+        mods = await buildModCatalog()
         await interaction.reply({ content: '✅ تم تحديث قائمة المودات', ephemeral: true })
         break
 
