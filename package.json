@@ -1,6 +1,6 @@
 {
   "name": "gta-fivem-mod-manager",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "Mod Manager for FiveM & GTA V - Graphics, Weapon Sounds & Weapon Skins",
   "author": "GTA FiveM Mod Manager",
   "main": "./out/main/index.js",

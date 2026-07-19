@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'fs'
-import { join, extname } from 'path'
+import { join, extname, dirname } from 'path'
 import { app } from 'electron'
 import type { ModCategory } from '../shared/types'
 
@@ -23,19 +23,31 @@ export interface PublishMod {
 }
 
 // روابط الـWebhook تُقرأ من ملف محلي سرّي (غير مرفوع، غير موزّع مع البرنامج).
-// dev: webhooks.json بجوار المشروع — النسخة المثبّتة: userData/webhooks.json
-function getWebhooks(): Partial<Record<ModCategory, string>> {
-  for (const f of [
+// نبحث في كل المسارات المحتملة: مجلد المشروع (تطوير)، مجلد التشغيل،
+// userData، وبجوار ملف البرنامج (النسخة المثبّتة).
+function webhookCandidates(): string[] {
+  const list = [
     join(app.getAppPath(), 'webhooks.json'),
+    join(process.cwd(), 'webhooks.json'),
     join(app.getPath('userData'), 'webhooks.json')
-  ]) {
+  ]
+  try {
+    list.push(join(dirname(app.getPath('exe')), 'webhooks.json'))
+  } catch {
+    // ignore
+  }
+  return list
+}
+
+function loadWebhooks(): { hooks: Partial<Record<ModCategory, string>>; found: boolean } {
+  for (const f of webhookCandidates()) {
     try {
-      if (existsSync(f)) return JSON.parse(readFileSync(f, 'utf8'))
+      if (existsSync(f)) return { hooks: JSON.parse(readFileSync(f, 'utf8')), found: true }
     } catch {
-      // نتجاهل الملف التالف ونجرب الموقع الثاني
+      // ملف تالف — نجرّب الموقع التالي
     }
   }
-  return {}
+  return { hooks: {}, found: false }
 }
 
 // مسار أيقونة Fivey (maintains المصدر في التطوير، والمورد الخارجي في النسخة المثبّتة)
@@ -52,9 +64,13 @@ function appendFile(form: FormData, index: number, filePath: string, fileName: s
 
 // يرسل إعلاناً (Embed) عن المود إلى روم التصنيف عبر Webhook
 export async function announceMod(mod: PublishMod): Promise<{ success: boolean; error?: string }> {
-  const url = getWebhooks()[mod.category]
+  const { hooks, found } = loadWebhooks()
+  if (!found) {
+    return { success: false, error: 'ملف webhooks.json غير موجود على هذا الجهاز' }
+  }
+  const url = hooks[mod.category]
   if (!url) {
-    return { success: false, error: 'ما فيه Webhook مضبوط لهذا التصنيف (تحقق من webhooks.json)' }
+    return { success: false, error: `ما فيه رابط لتصنيف "${mod.category}" داخل webhooks.json` }
   }
 
   const form = new FormData()
