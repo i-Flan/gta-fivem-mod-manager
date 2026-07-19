@@ -1,6 +1,6 @@
 import { createWriteStream, existsSync, mkdirSync, rmSync } from 'fs'
 import { join } from 'path'
-import { Readable } from 'stream'
+import { Readable, Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import { app } from 'electron'
 import extract from 'extract-zip'
@@ -33,12 +33,17 @@ export async function downloadAndInstall(
     let received = 0
 
     const nodeStream = Readable.fromWeb(res.body as Parameters<typeof Readable.fromWeb>[0])
-    nodeStream.on('data', (chunk: Buffer) => {
-      received += chunk.length
-      if (total > 0) onProgress(Math.min(0.99, received / total))
+    // نحسب التقدّم داخل السلسلة (Transform) بدل مستمع 'data' — لأن مزج
+    // مستمع 'data' مع pipeline يفقد أجزاء من الملف ويجعله تالفاً.
+    const progress = new Transform({
+      transform(chunk, _enc, cb) {
+        received += chunk.length
+        if (total > 0) onProgress(Math.min(0.99, received / total))
+        cb(null, chunk)
+      }
     })
 
-    await pipeline(nodeStream, createWriteStream(tmpZip))
+    await pipeline(nodeStream, progress, createWriteStream(tmpZip))
 
     // استبدال أي نسخة سابقة من المود
     if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true })
