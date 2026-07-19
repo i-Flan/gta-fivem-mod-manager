@@ -1,6 +1,6 @@
 {
   "name": "gta-fivem-mod-manager",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Mod Manager for FiveM & GTA V - Graphics, Weapon Sounds & Weapon Skins",
   "author": "GTA FiveM Mod Manager",
   "main": "./out/main/index.js",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
+    "archiver": "^7.0.1",
     "discord.js": "^14.27.0",
     "electron-updater": "^6.3.9",
     "extract-zip": "^2.0.1"

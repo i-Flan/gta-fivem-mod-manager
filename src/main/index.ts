@@ -3,6 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { loadModCatalog, buildModCatalog, getModsDirectory, initModsDirectory } from './modCatalog'
 import { downloadAndInstall } from './modDownloader'
+import { getAdminToken, setAdminToken, verifyToken, adminAddMod, adminEditMod, adminDeleteMod } from './adminApi'
+import type { ModCategory } from '../shared/types'
 import {
   loadState,
   saveState,
@@ -245,6 +247,54 @@ function setupIpc(): void {
     if (customData.descriptionAr) customMods[modId].descriptionAr = customData.descriptionAr
     saveState(state.settings, state.activeMods, state.installedPaths, JSON.stringify(customMods))
     return { success: true }
+  })
+
+  // ── لوحة إدارة المودات (المدير فقط) ──────────────────
+  ipcMain.handle('admin-status', () => {
+    return { isAdmin: getAdminToken().length > 0 }
+  })
+
+  ipcMain.handle('admin-set-token', async (_event, token: string) => {
+    const ok = await verifyToken(token)
+    if (ok) setAdminToken(token)
+    return { success: ok }
+  })
+
+  ipcMain.handle('admin-pick-folder', async () => {
+    const result = await dialog.showOpenDialog({ properties: ['openDirectory'], title: 'اختر مجلد المود' })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
+  })
+
+  ipcMain.handle(
+    'admin-add-mod',
+    async (
+      _event,
+      input: { folderPath: string; category: ModCategory; folderName: string; nameAr: string; descriptionAr?: string }
+    ) => {
+      const token = getAdminToken()
+      if (!token) return { success: false, error: 'لا يوجد مفتاح مدير' }
+      return adminAddMod(input, token)
+    }
+  )
+
+  ipcMain.handle(
+    'admin-edit-mod',
+    async (
+      _event,
+      id: string,
+      fields: { nameAr?: string; descriptionAr?: string; preview?: string; soundPreview?: string; videoPreview?: string }
+    ) => {
+      const token = getAdminToken()
+      if (!token) return { success: false, error: 'لا يوجد مفتاح مدير' }
+      return adminEditMod(id, fields, token)
+    }
+  )
+
+  ipcMain.handle('admin-delete-mod', async (_event, id: string) => {
+    const token = getAdminToken()
+    if (!token) return { success: false, error: 'لا يوجد مفتاح مدير' }
+    return adminDeleteMod(id, token)
   })
 }
 

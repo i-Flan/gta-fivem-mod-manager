@@ -36,6 +36,21 @@ interface API {
   onDownloadProgress: (
     callback: (data: { modId: string; progress: number }) => void
   ) => () => void
+  adminStatus: () => Promise<{ isAdmin: boolean }>
+  adminSetToken: (token: string) => Promise<{ success: boolean }>
+  adminPickFolder: () => Promise<string | null>
+  adminAddMod: (input: {
+    folderPath: string
+    category: string
+    folderName: string
+    nameAr: string
+    descriptionAr?: string
+  }) => Promise<{ success: boolean; error?: string }>
+  adminEditMod: (
+    id: string,
+    fields: { nameAr?: string; descriptionAr?: string; preview?: string; soundPreview?: string; videoPreview?: string }
+  ) => Promise<{ success: boolean; error?: string }>
+  adminDeleteMod: (id: string) => Promise<{ success: boolean; error?: string }>
 }
 
 declare global {

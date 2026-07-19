@@ -5,6 +5,7 @@ import Header from './components/Header'
 import ModCard from './components/ModCard'
 import SettingsPanel from './components/SettingsPanel'
 import EditModal from './components/EditModal'
+import AdminPanel from './components/AdminPanel'
 import './App.css'
 
 // أسماء التصنيفات دائماً بالإنجليزي (موحّدة)، وباقي الكلام يتبع اللغة المختارة
@@ -30,6 +31,8 @@ export default function App(): React.JSX.Element {
   const [editingMod, setEditingMod] = useState<ModManifest | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({})
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [showAdmin, setShowAdmin] = useState(false)
 
   const i18n = makeI18n((settings.language as Lang) || 'ar')
   const { t, dir } = i18n
@@ -60,6 +63,12 @@ export default function App(): React.JSX.Element {
   }, [loadMods])
 
   useEffect(() => window.api.onDownloadProgress(({ modId, progress }) => setDownloadProgress((prev) => ({ ...prev, [modId]: progress }))), [])
+  useEffect(() => { window.api.adminStatus().then((s) => setIsAdmin(s.isAdmin)) }, [])
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => { if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) { e.preventDefault(); setShowAdmin(true) } }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const activate = async (id: string): Promise<void> => {
     setLoadingId(id)
@@ -115,7 +124,7 @@ export default function App(): React.JSX.Element {
   return (
     <I18nContext.Provider value={i18n}>
       <div className="app" dir={dir}>
-        <Header gtaValid={gtaValid} fivemValid={fivemValid} onOpenSettings={() => setShowSettings(true)} onRefresh={refresh} refreshing={refreshing} />
+        <Header gtaValid={gtaValid} fivemValid={fivemValid} isAdmin={isAdmin} onOpenAdmin={() => setShowAdmin(true)} onOpenSettings={() => setShowSettings(true)} onRefresh={refresh} refreshing={refreshing} />
         <main className="main-content">
           <nav className="category-switcher">
             <div className="categories-left">
@@ -151,6 +160,7 @@ export default function App(): React.JSX.Element {
             </div>
           )}
         </main>
+        {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} onReload={loadMods} onAdminChange={setIsAdmin} />}
         {showSettings && <SettingsPanel settings={settings} onSave={save} onClose={() => setShowSettings(false)} />}
         {editingMod && <EditModal mod={editingMod} onClose={() => setEditingMod(null)} onSave={handleSaveEdit} />}
         {toast && <div className={`toast ${toast.type}`}>{toast.msg}</div>}

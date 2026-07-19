@@ -17,7 +17,14 @@ const api = {
     const listener = (_event: unknown, data: { modId: string; progress: number }): void => callback(data)
     ipcRenderer.on('download-progress', listener)
     return () => ipcRenderer.removeListener('download-progress', listener)
-  }
+  },
+  // لوحة المدير
+  adminStatus: () => ipcRenderer.invoke('admin-status'),
+  adminSetToken: (token: string) => ipcRenderer.invoke('admin-set-token', token),
+  adminPickFolder: () => ipcRenderer.invoke('admin-pick-folder'),
+  adminAddMod: (input: unknown) => ipcRenderer.invoke('admin-add-mod', input),
+  adminEditMod: (id: string, fields: unknown) => ipcRenderer.invoke('admin-edit-mod', id, fields),
+  adminDeleteMod: (id: string) => ipcRenderer.invoke('admin-delete-mod', id)
 }
 
 if (process.contextIsolated) {
