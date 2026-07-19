@@ -17,14 +17,6 @@ const CAT_LABEL: Record<ModCategory, string> = {
   killfx: 'KillFX'
 }
 
-// إيموجي لكل تصنيف لإضفاء لمسة أنيقة على العنوان
-const CAT_EMOJI: Record<ModCategory, string> = {
-  graphics: '🎨',
-  audio: '🔊',
-  bloodfx: '🩸',
-  killfx: '💥'
-}
-
 export interface PublishMod {
   id: string
   category: ModCategory
@@ -127,19 +119,17 @@ export async function announceMod(mod: PublishMod): Promise<{ success: boolean; 
   const form = new FormData()
   let fileIndex = 0
 
-  const desc = (mod.descriptionAr || '').trim()
-  // وصف أنيق (نصوص ثابتة إنجليزية): شارة الحصرية + الوصف + رابط تحميل قابل للضغط
-  const descParts: string[] = ['🔥 **Exclusive on Fivey**']
-  if (desc) descParts.push(desc)
-  descParts.push(`**[⬇️  Download Now](${RELEASES_URL})**`)
+  const catLabel = CAT_LABEL[mod.category]
+  // وصف بسيط بثلاثة أسطر: اسم المود (من البرنامج) + الحصرية + رابط التحميل
+  const description =
+    `**→ Name ${catLabel} :** ${mod.nameAr}` +
+    `\n\n**→ Exclusive on Fivey** 🔥` +
+    `\n**[→ Download Now ✓](${RELEASES_URL})**`
 
   const embed: Record<string, unknown> = {
-    author: { name: `Fivey  •  ${CAT_LABEL[mod.category]}`, icon_url: 'attachment://fivey.png' },
-    title: `${CAT_EMOJI[mod.category]}  ${mod.nameAr}`,
-    url: RELEASES_URL, // يخلي العنوان نفسه رابطاً قابلاً للضغط
-    description: descParts.join('\n\n'),
+    author: { name: `Fivey  •  ${catLabel}`, icon_url: 'attachment://fivey.png' },
+    description,
     color: 0xe01e2b,
-    fields: [{ name: '📂 Category', value: CAT_LABEL[mod.category], inline: true }],
     footer: { text: 'Fivey Mod Manager', icon_url: 'attachment://fivey.png' },
     timestamp: new Date().toISOString()
   }
