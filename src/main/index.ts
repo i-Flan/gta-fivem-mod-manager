@@ -258,9 +258,11 @@ function setupIpc(): void {
     return mainWindow.isMaximized()
   })
 
-  // "حدّث الآن": يغلق البرنامج ويثبّت النسخة الجديدة فوراً ثم يعيد فتحه
+  // "حدّث الآن": يغلق البرنامج ويثبّت النسخة الجديدة فوراً ثم يعيد فتحه.
+  // isSilent=false ليعرض المثبّت (هو من يعيد التشغيل)، و isForceRunAfter=false
+  // حتى لا يُفتح البرنامج مرتين فيتصارعان ويعلّق.
   ipcMain.handle('install-update-now', () => {
-    setImmediate(() => autoUpdater.quitAndInstall(false, true))
+    setImmediate(() => autoUpdater.quitAndInstall(false, false))
     return { success: true }
   })
 
@@ -432,7 +434,25 @@ function setupIpc(): void {
   })
 }
 
+// قفل النسخة الواحدة: بعد التحديث قد يُشغَّل البرنامج مرتين (المُحدِّث + خانة
+// "Run Fivey" في المثبّت)، فتتصارع النسختان على نفس الملفات ويعلّق البرنامج.
+// النسخة الثانية تُغلق فوراً وتُظهر النافذة الأصلية بدلاً منها.
+const gotSingleInstanceLock = app.requestSingleInstanceLock()
+if (!gotSingleInstanceLock) {
+  app.quit()
+}
+
+app.on('second-instance', () => {
+  if (splashWindow && !splashWindow.isDestroyed()) splashWindow.focus()
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.show()
+    mainWindow.focus()
+  }
+})
+
 app.whenReady().then(() => {
+  if (!gotSingleInstanceLock) return
   electronApp.setAppUserModelId('com.gtafivem.modmanager')
   initModsDirectory()
   initState()
