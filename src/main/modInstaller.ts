@@ -25,12 +25,9 @@ const EMPTY_PATHS: InstalledPaths = {
   graphics: [], audio: [], bloodfx: [], killfx: []
 }
 
-// bloodfx و killfx يتشاركان نفس ملف الوجهة (bloodfx.dat)، فلا يمكن تفعيلهما معاً.
-// تفعيل أحدهما يُلغي الآخر بالكامل ويستبدل الملف.
-const CONFLICTING_CATEGORIES: Partial<Record<ModCategory, ModCategory>> = {
-  bloodfx: 'killfx',
-  killfx: 'bloodfx'
-}
+// لا يوجد تعارض بين التصنيفات: كل تصنيف يركّب في مسار مختلف
+// (BloodFX = effects/mods، KillFX = timecycle)، فيمكن تفعيلهم معاً.
+const CONFLICTING_CATEGORIES: Partial<Record<ModCategory, ModCategory>> = {}
 
 function getStatePath(): string {
   return join(app.getPath('userData'), 'state.json')

@@ -21,7 +21,9 @@ function files(dir: string, base: string): string[] {
 function getDestination(category: ModCategory, source: string): string {
   const name = source.split('/').pop() || source
   if (category === 'audio') return `audio/${source}`
-  if (category === 'bloodfx' || category === 'killfx') return source.toLowerCase().endsWith('.dat') ? `fivem-effects/${name}` : `fivem-mods/${name}`
+  // KillFX = ملفات timecycle تروح لمجلد timecycle داخل FiveM
+  if (category === 'killfx') return `fivem/citizen/common/data/timecycle/${name}`
+  if (category === 'bloodfx') return source.toLowerCase().endsWith('.dat') ? `fivem-effects/${name}` : `fivem-mods/${name}`
   if (source.toLowerCase().startsWith('citizen/')) return `fivem/${source}`
   if (name.toLowerCase() === 'reshade.ini') return 'fivem/ReShade.ini'
   return `fivem/citizen/common/data/${name}`
