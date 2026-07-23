@@ -9,6 +9,20 @@ const CATS: { key: ModCategory; name: string }[] = [
   { key: 'killfx', name: 'KillFX' }
 ]
 
+// أمثلة عامة (بدون أسماء أشخاص) تتغيّر حسب التصنيف المختار
+const SLUG_HINT: Record<ModCategory, string> = {
+  graphics: 'graphics-01',
+  audio: 'sound-01',
+  bloodfx: 'blood-01',
+  killfx: 'kill-01'
+}
+const NAME_HINT: Record<ModCategory, string> = {
+  graphics: 'جرافكس ...',
+  audio: 'ساوند ...',
+  bloodfx: 'بلود ...',
+  killfx: 'كيل افكس ...'
+}
+
 interface Props {
   onClose: () => void
   onReload: () => void
@@ -244,9 +258,9 @@ export default function AdminPanel({ onClose, onReload, onAdminChange }: Props):
               {CATS.map((c) => <option key={c.key} value={c.key}>{c.name}</option>)}
             </select>
             <label className="admin-label">اسم مختصر إنجليزي (slug)</label>
-            <input className="admin-input" value={aSlug} onChange={(e) => setASlug(e.target.value)} placeholder="naff" dir="ltr" />
+            <input className="admin-input" value={aSlug} onChange={(e) => setASlug(e.target.value)} placeholder={SLUG_HINT[aCat]} dir="ltr" />
             <label className="admin-label">الاسم بالعربي</label>
-            <input className="admin-input" value={aName} onChange={(e) => setAName(e.target.value)} placeholder="جرافكس ناف" />
+            <input className="admin-input" value={aName} onChange={(e) => setAName(e.target.value)} placeholder={NAME_HINT[aCat]} />
             <label className="admin-label">الوصف (اختياري)</label>
             <input className="admin-input" value={aDesc} onChange={(e) => setADesc(e.target.value)} />
             {aCat === 'audio' ? (
