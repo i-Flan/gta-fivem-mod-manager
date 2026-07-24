@@ -1,5 +1,5 @@
-import { createWriteStream, existsSync, readFileSync, writeFileSync, statSync, rmSync } from 'fs'
-import { join, extname } from 'path'
+import { createWriteStream, existsSync, readFileSync, writeFileSync, statSync, rmSync, readdirSync } from 'fs'
+import { join, extname, dirname } from 'path'
 import { app } from 'electron'
 import archiver from 'archiver'
 import { CONTENT_OWNER, CONTENT_REPO, CONTENT_TAG } from './remoteConfig'
@@ -149,6 +149,24 @@ async function putCatalog(release: Release, mods: CatalogEntry[], token: string)
   }
 }
 
+// حماية من خطأ شائع: المدير يختار مجلد "citizen" نفسه بدل المجلد الذي يحتويه.
+// وقتها تضيع بادئة citizen/ من مسارات الملفات فتُركَّب في مكان خاطئ.
+// نكتشفها ونضغط من المجلد الأب مع الإبقاء على citizen/ في المسارات.
+function normalizeModFolder(folderPath: string): string {
+  const clean = folderPath.replace(/[\\/]+$/, '')
+  const leaf = clean.split(/[\\/]/).pop() || ''
+  if (leaf.toLowerCase() !== 'citizen') return clean
+  const parent = dirname(clean)
+  // نضغط الأب فقط لو ما فيه إلا مجلد citizen، حتى لا نضيف ملفات غريبة
+  try {
+    const siblings = readdirSync(parent).filter((n) => !n.startsWith('.'))
+    if (siblings.length === 1) return parent
+  } catch {
+    // ignore
+  }
+  return clean
+}
+
 function zipFolder(srcDir: string, outZip: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const output = createWriteStream(outZip)
@@ -182,7 +200,7 @@ export async function adminAddMod(input: AddModInput, token: string): Promise<{ 
     const id = `${input.category}-${folderName}`
     const assetName = `${folderName}.zip`
     const tmpZip = join(app.getPath('temp'), `${id}-${Date.now()}.zip`)
-    await zipFolder(input.folderPath, tmpZip)
+    await zipFolder(normalizeModFolder(input.folderPath), tmpZip)
     const size = statSync(tmpZip).size
 
     let release = await getOrCreateRelease(token)

@@ -264,6 +264,11 @@ export default function AdminPanel({ onClose, onReload, onAdminChange }: Props):
               <input className="admin-input" value={aFolder} readOnly placeholder="اختر مجلد المود" dir="ltr" />
               <button className="admin-btn" onClick={pickFolder}>استعراض</button>
             </div>
+            {aCat === 'graphics' && (
+              <p className="admin-hint">
+                ⚠️ اختر المجلد اللي <b>يحتوي</b> على <code>citizen</code> — مو مجلد <code>citizen</code> نفسه.
+              </p>
+            )}
             <label className="admin-label">التصنيف</label>
             <select className="admin-input" value={aCat} onChange={(e) => setACat(e.target.value as ModCategory)}>
               {CATS.map((c) => <option key={c.key} value={c.key}>{c.name}</option>)}
